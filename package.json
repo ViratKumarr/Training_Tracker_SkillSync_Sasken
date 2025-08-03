@@ -1,0 +1,35 @@
+{
+  "name": "training-tracker-skillsync-sasken",
+  "version": "1.0.0",
+  "description": "A comprehensive training management system for tracking employee learning and development",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "install-deps": "cd frontend && npm install",
+    "test": "cd frontend && npm test",
+    "start": "cd frontend && npm start"
+  },
+  "keywords": [
+    "training",
+    "learning",
+    "management",
+    "employee",
+    "development",
+    "skillsync",
+    "sasken",
+    "react",
+    "bootstrap"
+  ],
+  "author": "Virat Kumar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken.git"
+  },
+  "homepage": "https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}

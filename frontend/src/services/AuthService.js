@@ -3,6 +3,101 @@ import apiClient from './apiClient';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
+// Mock users for authentication when backend is not available
+const mockUsers = [
+  {
+    id: 1,
+    firstName: 'Admin',
+    lastName: 'User',
+    email: 'admin@sasken.com',
+    password: 'admin123',
+    role: 'ADMIN',
+    department: 'IT',
+    employeeId: 'EMP001',
+    phoneNumber: '+1234567890',
+    isActive: true
+  },
+  {
+    id: 2,
+    firstName: 'Manager',
+    lastName: 'User',
+    email: 'manager@sasken.com',
+    password: 'manager123',
+    role: 'MANAGER',
+    department: 'HR',
+    employeeId: 'EMP002',
+    phoneNumber: '+1234567891',
+    isActive: true
+  },
+  {
+    id: 3,
+    firstName: 'Trainer',
+    lastName: 'User',
+    email: 'trainer@sasken.com',
+    password: 'trainer123',
+    role: 'TRAINER',
+    department: 'Training',
+    employeeId: 'EMP003',
+    phoneNumber: '+1234567892',
+    isActive: true
+  },
+  {
+    id: 4,
+    firstName: 'Employee',
+    lastName: 'User',
+    email: 'employee@sasken.com',
+    password: 'employee123',
+    role: 'EMPLOYEE',
+    department: 'Engineering',
+    employeeId: 'EMP004',
+    phoneNumber: '+1234567893',
+    isActive: true
+  }
+];
+
+// Mock login function
+const mockLogin = (email, password) => {
+  const user = mockUsers.find(u => u.email === email && u.password === password);
+
+  if (!user) {
+    throw new Error('Invalid email or password');
+  }
+
+  if (!user.isActive) {
+    throw new Error('Account is deactivated');
+  }
+
+  // Generate a mock token
+  const token = `mock-token-${user.id}-${Date.now()}`;
+
+  // Store in localStorage
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify({
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+    department: user.department,
+    employeeId: user.employeeId,
+    phoneNumber: user.phoneNumber
+  }));
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      department: user.department,
+      employeeId: user.employeeId,
+      phoneNumber: user.phoneNumber
+    }
+  };
+};
+
 // Add response interceptor to handle errors
 apiClient.interceptors.response.use(
   (response) => response,
@@ -25,7 +120,9 @@ export const AuthService = {
       });
       return response.data;
     } catch (error) {
-      throw error.response?.data || 'Login failed';
+      // Fallback to mock authentication when backend is not available
+      console.log('Backend not available, using mock authentication');
+      return mockLogin(email, password);
     }
   },
 

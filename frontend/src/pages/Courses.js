@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap';
 import { useAppData } from '../context/AppDataContext';
 import apiClient from '../services/apiClient';
@@ -12,17 +12,15 @@ const Courses = ({ user }) => {
     return enrollments.some(e => e.user.id === user.id && e.course.id === courseId);
   };
 
-  const fetchCourses = async () => {
-    try {
-      // Try to fetch from API first
-      const response = await apiClient.get('/courses');
-      // If API is available, we could update the context here
-    } catch (error) {
-      console.log('API not available, using context data for courses');
-
-
-    }
-  };
+  // const fetchCourses = async () => {
+  //   try {
+  //     // Try to fetch from API first
+  //     await apiClient.get('/courses');
+  //     // If API is available, we could update the context here
+  //   } catch (error) {
+  //     console.log('API not available, using context data for courses');
+  //   }
+  // };
 
   const handleEnroll = async (courseId) => {
     try {
@@ -36,7 +34,7 @@ const Courses = ({ user }) => {
       }
 
       // Use context to enroll
-      const newEnrollment = enrollInCourse(user.id, courseId, user);
+      enrollInCourse(user.id, courseId, user);
       setMessage({ type: 'success', text: 'Successfully enrolled in course! Check Enrollments section for progress.' });
 
       // Try to sync with API in background

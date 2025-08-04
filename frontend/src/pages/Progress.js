@@ -1,29 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, ProgressBar, Badge, Button, Alert } from 'react-bootstrap';
 import { useAppData } from '../context/AppDataContext';
+import ProgressScrollbar from '../components/ProgressScrollbar';
 import apiClient from '../services/apiClient';
 
 const Progress = ({ user }) => {
   const { getUserProgress, getUserEnrollments, updateProgress, loading: contextLoading } = useAppData();
-  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filterStatus, setFilterStatus] = useState('');
+  const [markingComplete, setMarkingComplete] = useState(null);
 
   // Get user-specific data from context
   const progressData = getUserProgress(user.id);
   const enrollments = getUserEnrollments(user.id);
 
-  useEffect(() => {
-    loadProgressData();
-    loadStats();
-  }, []);
+  // Calculate real-time stats based on actual user data
+  const stats = {
+    totalCourses: enrollments.length, // Total enrolled courses
+    completedCourses: enrollments.filter(e => e.status === 'COMPLETED').length,
+    averageCompletion: enrollments.length > 0
+      ? enrollments.reduce((sum, e) => sum + (e.completionPercentage || 0), 0) / enrollments.length
+      : 0,
+    totalTimeSpent: progressData.reduce((sum, p) => sum + (p.timeSpentMinutes || 0), 0)
+  };
 
-  const loadProgressData = async () => {
+  const loadProgressData = useCallback(async () => {
     try {
       setLoading(true);
       // Try to sync with API in background
-      const response = await apiClient.get(`/progress/user/${user.id}`);
+      await apiClient.get(`/progress/user/${user.id}`);
       // API data is available, but we're using context data for display
     } catch (err) {
       console.log('API not available, using context data for progress');
@@ -32,21 +38,44 @@ const Progress = ({ user }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.id]);
 
-  const loadStats = async () => {
+  useEffect(() => {
+    loadProgressData();
+  }, [loadProgressData]);
+
+  const markAsCompleted = async (progressId, courseId) => {
     try {
-      const response = await apiClient.get(`/progress/stats/user/${user.id}`);
-      setStats(response.data);
-    } catch (err) {
-      console.log('API not available, using mock data for stats');
-      // Set default stats if API fails
-      setStats({
-        totalCourses: 15,
-        completedCourses: 4,
-        averageCompletion: 46.67,
-        totalTimeSpent: 7905 // 131h 45m in minutes
+      setMarkingComplete(progressId);
+      setError(null);
+
+      // Call the new mark as completed API endpoint
+      const response = await apiClient.post('/progress/mark-completed', {
+        userId: user.id,
+        courseId: courseId
       });
+
+      if (response.data) {
+        // Update context data
+        await updateProgress(user.id, courseId, {
+          completionPercentage: 100,
+          status: 'COMPLETED',
+          completedAt: new Date().toISOString()
+        });
+
+        // Reload data
+        await loadProgressData();
+
+        // Show success message
+        setError(null);
+        console.log('Course marked as completed successfully!');
+      }
+
+    } catch (err) {
+      setError('Failed to mark course as completed. Please try again.');
+      console.error('Error marking course as completed:', err);
+    } finally {
+      setMarkingComplete(null);
     }
   };
 
@@ -143,9 +172,8 @@ const Progress = ({ user }) => {
         </Alert>
       )}
 
-      {/* Progress Stats */}
-      {stats && (
-        <Row className="mb-4">
+      {/* Progress Stats - Real-time Data */}
+      <Row className="mb-4">
           <Col md={3}>
             <Card className="dashboard-card text-center">
               <Card.Body>
@@ -183,7 +211,6 @@ const Progress = ({ user }) => {
             </Card>
           </Col>
         </Row>
-      )}
 
       {/* Progress Bar Graph */}
       <Row className="mb-4">
@@ -196,39 +223,26 @@ const Progress = ({ user }) => {
               </h5>
             </Card.Header>
             <Card.Body>
-              {progressData.map((progress) => (
-                <div key={progress.id} className="mb-3">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <div>
-                      <strong>{progress.course.title}</strong>
-                      <br />
-                      <small className="text-muted">
-                        {progress.course.category} • {progress.course.type} • {progress.course.durationHours}h
-                      </small>
-                    </div>
-                    <div className="text-end">
-                      <div className="h5 mb-0 text-primary">
-                        {progress.completionPercentage.toFixed(1)}%
-                      </div>
-                      <small className="text-muted">Completion</small>
-                    </div>
-                  </div>
-                  <ProgressBar 
-                    now={progress.completionPercentage} 
-                    variant={getProgressVariant(progress.completionPercentage)}
-                    style={{ height: '20px' }}
-                    className="mb-2"
-                  />
-                  <div className="d-flex justify-content-between align-items-center">
-                    <small className="text-muted">
-                      Time spent: {formatTime(progress.timeSpentMinutes)}
-                    </small>
-                    <small className="text-muted">
-                      {getStatusBadge(progress.status)}
-                    </small>
-                  </div>
+              {enrollments.length === 0 ? (
+                <div className="text-center py-4">
+                  <i className="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                  <h5 className="text-muted">No Course Enrollments</h5>
+                  <p className="text-muted">Enroll in courses to start tracking your progress!</p>
+                  <Button variant="primary" href="/courses">
+                    Browse Courses
+                  </Button>
                 </div>
-              ))}
+              ) : (
+                enrollments.map((enrollment) => (
+                  <ProgressScrollbar
+                    key={enrollment.id}
+                    enrollment={enrollment}
+                    onProgressUpdate={(newProgress) => {
+                      console.log(`Progress updated to ${newProgress}% for course ${enrollment.course.title}`);
+                    }}
+                  />
+                ))
+              )}
             </Card.Body>
           </Card>
         </Col>
@@ -347,8 +361,8 @@ const Progress = ({ user }) => {
                           />
                           <div className="d-flex justify-content-between align-items-center">
                             <small className="text-muted">
-                              Started: {progress.startedAt ? 
-                                new Date(progress.startedAt).toLocaleDateString() : 
+                              Started: {progress.startedAt ?
+                                new Date(progress.startedAt).toLocaleDateString() :
                                 'N/A'
                               }
                             </small>
@@ -401,14 +415,35 @@ const Progress = ({ user }) => {
                               Continue
                             </Button>
                             {progress.course?.materials && progress.course.materials.startsWith('http') && (
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="outline-info"
                                 title="Go to Course"
                                 onClick={() => window.open(progress.course.materials, '_blank')}
                               >
                                 <i className="fas fa-external-link-alt me-1"></i>
                                 Go to Course
+                              </Button>
+                            )}
+                            {progress.completionPercentage < 100 && (
+                              <Button
+                                size="sm"
+                                variant="success"
+                                title="Mark as Completed"
+                                onClick={() => markAsCompleted(progress.id, progress.course.id)}
+                                disabled={markingComplete === progress.id}
+                              >
+                                {markingComplete === progress.id ? (
+                                  <>
+                                    <i className="fas fa-spinner fa-spin me-1"></i>
+                                    Completing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <i className="fas fa-check-circle me-1"></i>
+                                    Mark as Completed
+                                  </>
+                                )}
                               </Button>
                             )}
                             <Button 

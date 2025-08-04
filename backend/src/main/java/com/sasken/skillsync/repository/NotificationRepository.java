@@ -46,4 +46,20 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.status = :status")
     long countByStatus(@Param("status") Notification.NotificationStatus status);
-} 
+
+    // Additional methods needed by services and controllers
+    List<Notification> findByUserIdOrderBySentAtDesc(Long userId);
+
+    List<Notification> findByUserIdAndIsReadFalseOrderBySentAtDesc(Long userId);
+
+    long countByUserIdAndIsReadFalse(Long userId);
+
+    List<Notification> findByUserIdAndIsReadFalse(Long userId);
+
+    void deleteByUserId(Long userId);
+
+    List<Notification> findByPriority(Notification.NotificationPriority priority);
+
+    @Query("SELECT n FROM Notification n ORDER BY n.sentAt DESC")
+    List<Notification> findTopNByOrderBySentAtDesc(@Param("limit") int limit);
+}

@@ -52,4 +52,26 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     long countByStatus(@Param("status") Enrollment.EnrollmentStatus status);
     
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
-} 
+
+    // Additional methods needed by services
+    @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.id = :courseId AND e.status IN ('ENROLLED', 'IN_PROGRESS')")
+    long countActiveByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT e FROM Enrollment e WHERE e.enrolledAt < :deadline AND e.status = 'IN_PROGRESS'")
+    List<Enrollment> findOverdueEnrollments(@Param("deadline") LocalDateTime deadline);
+
+    @Query("SELECT e FROM Enrollment e WHERE e.completedAt >= :startDate AND e.completedAt <= :endDate AND e.status = 'COMPLETED'")
+    List<Enrollment> findCompletedEnrollmentsByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT AVG(e.completionPercentage) FROM Enrollment e WHERE e.course.id = :courseId")
+    Double getAverageCompletionPercentageByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT e FROM Enrollment e JOIN e.user u WHERE u.department = :department")
+    List<Enrollment> findByUserDepartment(@Param("department") String department);
+
+    @Query("SELECT e FROM Enrollment e WHERE e.user.id = :userId AND e.type = 'MANDATORY'")
+    List<Enrollment> findMandatoryEnrollmentsByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT e FROM Enrollment e WHERE e.user.id = :userId AND e.type = 'OPTIONAL'")
+    List<Enrollment> findOptionalEnrollmentsByUserId(@Param("userId") Long userId);
+}

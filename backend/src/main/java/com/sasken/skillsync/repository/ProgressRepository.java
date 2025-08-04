@@ -50,4 +50,38 @@ public interface ProgressRepository extends JpaRepository<Progress, Long> {
     long countCompletedProgressByUser(@Param("userId") Long userId);
     
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
-} 
+
+    // Additional methods needed by services
+    @Query("SELECT AVG(p.completionPercentage) FROM Progress p WHERE p.user.id = :userId")
+    Double getAverageCompletionPercentageByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT AVG(p.completionPercentage) FROM Progress p WHERE p.course.id = :courseId")
+    Double getAverageCompletionPercentageByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT SUM(p.timeSpentMinutes) FROM Progress p WHERE p.user.id = :userId")
+    Integer getTotalTimeSpentByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT SUM(p.timeSpentMinutes) FROM Progress p WHERE p.course.id = :courseId")
+    Integer getTotalTimeSpentByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT p FROM Progress p WHERE p.lastAccessedAt >= :startDate AND p.lastAccessedAt <= :endDate")
+    List<Progress> findByLastAccessedAtBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT p FROM Progress p JOIN p.user u WHERE u.department = :department")
+    List<Progress> findByUserDepartment(@Param("department") String department);
+
+    @Query("SELECT COUNT(p) FROM Progress p WHERE p.user.id = :userId AND p.status = :status")
+    long countByUserIdAndStatus(@Param("userId") Long userId, @Param("status") Progress.ProgressStatus status);
+
+    @Query("SELECT AVG(p.quizScore) FROM Progress p WHERE p.user.id = :userId")
+    Double getAverageQuizScoreByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT AVG(p.quizScore) FROM Progress p WHERE p.course.id = :courseId")
+    Double getAverageQuizScoreByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT p FROM Progress p WHERE p.course.id = :courseId ORDER BY p.completionPercentage DESC")
+    List<Progress> findTopPerformersByCourseId(@Param("courseId") Long courseId);
+
+    @Query("SELECT p FROM Progress p WHERE p.user.id = :userId ORDER BY p.lastAccessedAt DESC")
+    List<Progress> findRecentActivityByUserId(@Param("userId") Long userId);
+}

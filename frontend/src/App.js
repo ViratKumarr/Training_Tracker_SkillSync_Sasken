@@ -21,7 +21,7 @@ import Users from './pages/Users';
 import Reports from './pages/Reports';
 
 // Services
-import { AuthService } from './services/AuthService';
+// import { AuthService } from './services/AuthService';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

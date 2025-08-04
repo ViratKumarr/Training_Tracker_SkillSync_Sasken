@@ -19,7 +19,7 @@ const Notifications = ({ user }) => {
     try {
       setLoading(true);
       // Try to sync with API in background
-      const response = await apiClient.get('/notifications');
+      await apiClient.get('/notifications');
       // API data is available, but we're using context data for display
     } catch (err) {
       console.log('API not available, using context data for notifications');

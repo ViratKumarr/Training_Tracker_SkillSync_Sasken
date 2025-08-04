@@ -35,11 +35,11 @@ public class NotificationService {
     }
 
     public List<Notification> getNotificationsByUser(Long userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return notificationRepository.findByUserIdOrderBySentAtDesc(userId);
     }
 
     public List<Notification> getUnreadNotificationsByUser(Long userId) {
-        return notificationRepository.findByUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
+        return notificationRepository.findByUserIdAndIsReadFalseOrderBySentAtDesc(userId);
     }
 
     public Optional<Notification> getNotificationById(Long id) {
@@ -205,6 +205,6 @@ public class NotificationService {
     }
 
     public List<Notification> getRecentNotifications(int limit) {
-        return notificationRepository.findTopNByOrderByCreatedAtDesc(limit);
+        return notificationRepository.findTopNByOrderBySentAtDesc(limit);
     }
 }

@@ -29,7 +29,7 @@ const Feedback = ({ user }) => {
     try {
       setLoading(true);
       // Try to sync with API in background
-      const response = await apiClient.get('/feedback');
+      await apiClient.get('/feedback');
       // API data is available, but we're using context data for display
     } catch (err) {
       console.log('API not available, using context data for feedback');
@@ -41,7 +41,7 @@ const Feedback = ({ user }) => {
   const loadCourses = async () => {
     try {
       // Try to sync with API in background
-      const response = await apiClient.get('/courses');
+      await apiClient.get('/courses');
       // API data is available, but we're using context data for display
     } catch (err) {
       console.log('API not available, using context data for courses');
@@ -51,37 +51,41 @@ const Feedback = ({ user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const selectedCourse = courses.find(c => c.id == formData.courseId);
+      const selectedCourse = courses.find(c => c.id === parseInt(formData.courseId));
+
+      if (!selectedCourse) {
+        setError('Please select a valid course');
+        return;
+      }
 
       if (editingFeedback) {
         // Update existing feedback
         const updatedFeedback = {
-          ...editingFeedback,
-          courseName: selectedCourse.title,
           ...formData,
           status: 'SUBMITTED' // Reset status when edited
         };
 
         updateFeedback(editingFeedback.id, updatedFeedback);
         setEditingFeedback(null);
+        setError(null);
         alert('Feedback updated successfully!');
       } else {
         // Create new feedback
         const newFeedback = {
-          courseName: selectedCourse.title,
-          userName: `${user.firstName} ${user.lastName}`,
-          userEmail: user.email,
+          userId: user.id,
+          courseId: parseInt(formData.courseId),
           ...formData
         };
 
         addFeedback(newFeedback);
+        setError(null);
         alert('Feedback submitted successfully!');
       }
 
       setShowForm(false);
       resetForm();
     } catch (err) {
-      setError('Failed to submit feedback');
+      setError('Failed to submit feedback: ' + err.message);
       console.error(err);
     }
   };

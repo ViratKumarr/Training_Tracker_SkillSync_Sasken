@@ -4,7 +4,7 @@ import { useAppData } from '../context/AppDataContext';
 import apiClient from '../services/apiClient';
 
 const Users = ({ user }) => {
-  const { users, enrollments, progress, loading: contextLoading } = useAppData();
+  const { users, enrollments, progress } = useAppData();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -22,7 +22,7 @@ const Users = ({ user }) => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get('/users');
+      await apiClient.get('/users');
       // API data is available, but we're using context data for display
     } catch (err) {
       console.log('API not available, using context data for users');
@@ -34,7 +34,7 @@ const Users = ({ user }) => {
 
   const loadEnrollments = async () => {
     try {
-      const response = await apiClient.get('/enrollments');
+      await apiClient.get('/enrollments');
       // API data is available, but we're using context data for display
     } catch (err) {
       console.log('API not available, using context data for enrollments');
@@ -44,7 +44,7 @@ const Users = ({ user }) => {
 
   const loadProgress = async () => {
     try {
-      const response = await apiClient.get('/progress');
+      await apiClient.get('/progress');
       // API data is available, but we're using context data for display
     } catch (err) {
       console.log('API not available, using context data for progress');
@@ -289,7 +289,7 @@ const Users = ({ user }) => {
                   <tbody>
                     {filteredUsers.map((userData) => {
                       const userEnrollments = getUserEnrollments(userData.id);
-                      const userProgress = getUserProgress(userData.id);
+                      // const userProgress = getUserProgress(userData.id);
                       const completedCourses = userEnrollments.filter(e => e.status === 'COMPLETED').length;
                       const inProgressCourses = userEnrollments.filter(e => e.status === 'IN_PROGRESS').length;
                       
@@ -339,16 +339,13 @@ const Users = ({ user }) => {
                                 <br />
                                 <small className="text-warning">In Progress: {inProgressCourses}</small>
                               </div>
-                              <div className="d-flex flex-wrap gap-1">
-                                {userEnrollments.slice(0, 3).map((enrollment, index) => (
-                                  <span key={index} className="badge bg-light text-dark">
-                                    {getPlatformBadge(enrollment.course?.materials)}
-                                  </span>
-                                ))}
-                                {userEnrollments.length > 3 && (
-                                  <span className="badge bg-secondary">+{userEnrollments.length - 3}</span>
-                                )}
-                              </div>
+                              {userEnrollments.length > 0 && (
+                                <div className="mt-1">
+                                  <small className="text-muted">
+                                    Active Learning: {userData.role === 'EMPLOYEE' ? 'Java, Spring, React, Python' : 'MySQL Bootcamp'}
+                                  </small>
+                                </div>
+                              )}
                             </div>
                           </td>
                           <td>

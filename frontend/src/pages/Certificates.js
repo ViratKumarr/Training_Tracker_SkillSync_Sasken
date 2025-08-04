@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap';
 import html2canvas from 'html2canvas';
 import { useAppData } from '../context/AppDataContext';
@@ -12,22 +12,22 @@ const Certificates = ({ user }) => {
   // Get user-specific certificates from context
   const certificates = getUserCertificates(user.id);
 
-  useEffect(() => {
-    loadCertificates();
-  }, []);
-
-  const loadCertificates = async () => {
+  const loadCertificates = useCallback(async () => {
     try {
       setLoading(true);
       // Try to sync with API in background
-      const response = await apiClient.get(`/certificates/user/${user.id}`);
+      await apiClient.get(`/certificates/user/${user.id}`);
       // API data is available, but we're using context data for display
     } catch (err) {
       console.log('API not available, using context data for certificates');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.id]);
+
+  useEffect(() => {
+    loadCertificates();
+  }, [loadCertificates]);
 
   const downloadCertificate = async (certificate) => {
     try {
@@ -390,21 +390,86 @@ const Certificates = ({ user }) => {
         </Alert>
       )}
 
+      {/* Demo Certificate Design - Always Visible */}
+      <Row className="mb-4">
+        <Col>
+          <Card className="border-primary">
+            <Card.Header className="bg-primary text-white">
+              <h5 className="mb-0">
+                <i className="fas fa-award me-2"></i>
+                Certificate Design Preview
+              </h5>
+            </Card.Header>
+            <Card.Body>
+              <div className="text-center mb-3">
+                <div style={{
+                  width: '100%',
+                  maxWidth: '600px',
+                  height: '400px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                  margin: '0 auto',
+                  borderRadius: '15px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  color: 'white',
+                  fontFamily: 'Georgia, serif',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    left: '20px',
+                    right: '20px',
+                    bottom: '20px',
+                    border: '3px solid rgba(255,255,255,0.3)',
+                    borderRadius: '10px'
+                  }}></div>
+                  <h3 style={{ margin: '0 0 10px 0', fontSize: '28px', fontWeight: 'bold' }}>Certificate of Completion</h3>
+                  <p style={{ margin: '0 0 20px 0', fontSize: '16px', opacity: 0.9 }}>This certifies that</p>
+                  <h2 style={{ margin: '0 0 20px 0', fontSize: '32px', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>Your Name</h2>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '16px', opacity: 0.9 }}>has successfully completed</p>
+                  <h4 style={{ margin: '0 0 15px 0', fontSize: '20px', fontWeight: 'bold' }}>Course Title</h4>
+                  <p style={{ margin: '0 0 15px 0', fontSize: '14px', opacity: 0.8, fontStyle: 'italic' }}>
+                    "Learning never exhausts the mind" - Leonardo da Vinci
+                  </p>
+                  <p style={{ margin: '0 0 5px 0', fontSize: '14px', opacity: 0.8 }}>Date: {new Date().toLocaleDateString()}</p>
+                  <p style={{ margin: '0', fontSize: '14px', opacity: 0.8 }}>SkillSync - Sasken Technologies</p>
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-muted">
+                  <i className="fas fa-info-circle me-2"></i>
+                  Complete any course to earn a certificate with this beautiful design!
+                </p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Real Certificates Section */}
       <Row>
         <Col>
           <Card className="dashboard-card">
             <Card.Header>
               <h5 className="mb-0">
-                <i className="fas fa-list me-2"></i>
-                Earned Certificates ({certificates.length})
+                <i className="fas fa-download me-2"></i>
+                Your Earned Certificates ({certificates.length})
               </h5>
             </Card.Header>
             <Card.Body>
               {certificates.length === 0 ? (
                 <div className="text-center py-4">
                   <i className="fas fa-certificate fa-3x text-muted mb-3"></i>
-                  <h5>No Certificates Yet</h5>
-                  <p className="text-muted">Complete courses to earn certificates.</p>
+                  <h5>No Certificates Earned Yet</h5>
+                  <p className="text-muted">Complete courses with 100% progress to earn certificates and see them here!</p>
+                  <Button variant="outline-primary" href="/progress">
+                    Track Your Progress
+                  </Button>
                 </div>
               ) : (
                 <div>

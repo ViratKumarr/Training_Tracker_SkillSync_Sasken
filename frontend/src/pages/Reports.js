@@ -16,7 +16,7 @@ const Reports = ({ user }) => {
     try {
       setLoading(true);
       // Try to sync with API in background
-      const [usersRes, coursesRes, enrollmentsRes, progressRes] = await Promise.all([
+      await Promise.all([
         apiClient.get('/users'),
         apiClient.get('/courses'),
         apiClient.get('/enrollments'),
@@ -41,26 +41,26 @@ const Reports = ({ user }) => {
     return <Badge bg={variants[role] || 'secondary'}>{role}</Badge>;
   };
 
-  const getStatusBadge = (status) => {
-    const variants = {
-      'COMPLETED': 'success',
-      'IN_PROGRESS': 'warning',
-      'ENROLLED': 'primary',
-      'NOT_STARTED': 'secondary'
-    };
-    return <Badge bg={variants[status] || 'secondary'}>{status.replace('_', ' ')}</Badge>;
-  };
+  // const getStatusBadge = (status) => {
+  //   const variants = {
+  //     'COMPLETED': 'success',
+  //     'IN_PROGRESS': 'warning',
+  //     'ENROLLED': 'primary',
+  //     'NOT_STARTED': 'secondary'
+  //   };
+  //   return <Badge bg={variants[status] || 'secondary'}>{status.replace('_', ' ')}</Badge>;
+  // };
 
-  const getCategoryBadge = (category) => {
-    const colors = {
-      'TECHNICAL': 'primary',
-      'SOFT_SKILLS': 'success',
-      'COMPLIANCE': 'warning',
-      'LEADERSHIP': 'info',
-      'PRODUCTIVITY': 'secondary'
-    };
-    return <Badge bg={colors[category] || 'secondary'}>{category.replace('_', ' ')}</Badge>;
-  };
+  // const getCategoryBadge = (category) => {
+  //   const colors = {
+  //     'TECHNICAL': 'primary',
+  //     'SOFT_SKILLS': 'success',
+  //     'COMPLIANCE': 'warning',
+  //     'LEADERSHIP': 'info',
+  //     'PRODUCTIVITY': 'secondary'
+  //   };
+  //   return <Badge bg={colors[category] || 'secondary'}>{category.replace('_', ' ')}</Badge>;
+  // };
 
   const formatTime = (minutes) => {
     if (!minutes) return '0h 0m';
@@ -79,13 +79,13 @@ const Reports = ({ user }) => {
     return total / progress.length;
   };
 
-  const getEnrollmentStatusBreakdown = () => {
-    const statusCounts = enrollments.reduce((acc, enrollment) => {
-      acc[enrollment.status] = (acc[enrollment.status] || 0) + 1;
-      return acc;
-    }, {});
-    return statusCounts;
-  };
+  // const getEnrollmentStatusBreakdown = () => {
+  //   const statusCounts = enrollments.reduce((acc, enrollment) => {
+  //     acc[enrollment.status] = (acc[enrollment.status] || 0) + 1;
+  //     return acc;
+  //   }, {});
+  //   return statusCounts;
+  // };
 
   const getUserDistribution = () => {
     const userStats = users.map(user => {
@@ -118,7 +118,7 @@ const Reports = ({ user }) => {
 
   const totalTimeSpent = calculateTotalTimeSpent();
   const averageCompletion = calculateAverageCompletion();
-  const enrollmentStatusBreakdown = getEnrollmentStatusBreakdown();
+  // const enrollmentStatusBreakdown = getEnrollmentStatusBreakdown();
   const userDistribution = getUserDistribution();
 
   return (
@@ -152,30 +152,30 @@ const Reports = ({ user }) => {
             <Card.Body>
               <Row>
                 <Col md={3} className="text-center">
-                  <h4 className="text-primary">4</h4>
+                  <h4 className="text-primary">{users.length}</h4>
                   <p className="text-muted mb-0">Total Users</p>
                 </Col>
                 <Col md={3} className="text-center">
-                  <h4 className="text-success">15</h4>
-                  <p className="text-muted mb-0">Total Courses</p>
+                  <h4 className="text-success">{courses.length}</h4>
+                  <p className="text-muted mb-0">Total Courses Available</p>
                 </Col>
                 <Col md={3} className="text-center">
-                  <h4 className="text-info">4</h4>
+                  <h4 className="text-info">{enrollments.length}</h4>
                   <p className="text-muted mb-0">Total Enrollments</p>
-                  <small className="text-success">2 completed so far</small>
+                  <small className="text-success">{enrollments.filter(e => e.status === 'COMPLETED').length} completed so far</small>
                 </Col>
                 <Col md={3} className="text-center">
-                  <h4 className="text-warning">153h 15m</h4>
+                  <h4 className="text-warning">{formatTime(totalTimeSpent)}</h4>
                   <p className="text-muted mb-0">Total Time Spent</p>
                 </Col>
               </Row>
               <Row className="mt-3">
                 <Col md={6} className="text-center">
-                  <h4 className="text-info">76.4%</h4>
+                  <h4 className="text-info">{averageCompletion.toFixed(1)}%</h4>
                   <p className="text-muted mb-0">Average Completion</p>
                 </Col>
                 <Col md={6} className="text-center">
-                  <h4 className="text-success">2</h4>
+                  <h4 className="text-success">{enrollments.filter(e => e.status === 'COMPLETED').length}</h4>
                   <p className="text-muted mb-0">Completed Courses</p>
                 </Col>
               </Row>
@@ -197,15 +197,15 @@ const Reports = ({ user }) => {
             <Card.Body>
               <Row>
                 <Col md={4} className="text-center">
-                  <h4 className="text-primary">4</h4>
-                  <p className="text-muted mb-0">Enrolled</p>
+                  <h4 className="text-primary">{enrollments.filter(e => e.status === 'ENROLLED').length}</h4>
+                  <p className="text-muted mb-0">Newly Enrolled</p>
                 </Col>
                 <Col md={4} className="text-center">
-                  <h4 className="text-warning">2</h4>
+                  <h4 className="text-warning">{enrollments.filter(e => e.status === 'IN_PROGRESS').length}</h4>
                   <p className="text-muted mb-0">In Progress</p>
                 </Col>
                 <Col md={4} className="text-center">
-                  <h4 className="text-success">2</h4>
+                  <h4 className="text-success">{enrollments.filter(e => e.status === 'COMPLETED').length}</h4>
                   <p className="text-muted mb-0">Completed</p>
                 </Col>
               </Row>

@@ -26,7 +26,9 @@ public class CourseController {
 
     @GetMapping
     public ResponseEntity<List<Course>> getAllCourses() {
+        System.out.println("CourseController: Getting all courses...");
         List<Course> courses = courseRepository.findByIsActive(true);
+        System.out.println("CourseController: Found " + courses.size() + " active courses");
         return ResponseEntity.ok(courses);
     }
 

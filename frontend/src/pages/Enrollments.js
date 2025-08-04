@@ -1,43 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Alert } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 import { useAppData } from '../context/AppDataContext';
+import ProgressScrollbar from '../components/ProgressScrollbar';
 import apiClient from '../services/apiClient';
 
 const Enrollments = ({ user }) => {
-  const { getUserEnrollments, getUserProgress, updateProgress, loading: contextLoading } = useAppData();
+  const { getUserEnrollments, loading: contextLoading } = useAppData();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const location = useLocation();
 
-  // Get user-specific data from context
+  // Get user-specific enrollments from context
   const enrollments = getUserEnrollments(user.id);
-  const progress = getUserProgress(user.id);
 
-  useEffect(() => {
-    loadEnrollments();
-  }, []);
+  // Filter enrollments based on URL parameter
+  const getFilteredEnrollments = () => {
+    const urlParams = new URLSearchParams(location.search);
+    const filterParam = urlParams.get('filter');
+    
+    let filtered = [...enrollments];
 
-  const loadEnrollments = async () => {
-    try {
-      setLoading(true);
-      // Try to sync with API in background
-      const response = await apiClient.get(`/enrollments/user/${user.id}`);
-      // API data is available, but we're using context data for display
-    } catch (err) {
-      console.log('API not available, using context data for enrollments');
-
-    } finally {
-      setLoading(false);
+    if (filterParam === 'completed') {
+      filtered = filtered.filter(e => e.status === 'COMPLETED');
+    } else if (filterParam === 'in-progress') {
+      filtered = filtered.filter(e => e.status === 'IN_PROGRESS');
     }
-  };
 
-  // Helper function to get progress for an enrollment
-  const getEnrollmentProgress = (enrollmentId, courseId) => {
-    return progress.find(p => p.user.id === user.id && p.course.id === courseId);
+    return filtered;
   };
 
   // Sort enrollments: IN_PROGRESS first, then ENROLLED, then COMPLETED
-  const sortedEnrollments = [...enrollments].sort((a, b) => {
+  const sortedEnrollments = getFilteredEnrollments().sort((a, b) => {
     const statusPriority = { 'IN_PROGRESS': 0, 'ENROLLED': 1, 'COMPLETED': 2 };
     const statusA = statusPriority[a.status] || 3;
     const statusB = statusPriority[b.status] || 3;
@@ -46,13 +41,17 @@ const Enrollments = ({ user }) => {
       return statusA - statusB;
     }
 
-    // Then sort by date (newest first)
-    const dateA = new Date(a.enrolledAt || 0);
-    const dateB = new Date(b.enrolledAt || 0);
-    return dateB - dateA;
+    // If same status, sort by enrollment date (newest first)
+    return new Date(b.enrolledAt) - new Date(a.enrolledAt);
   });
 
-
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -64,101 +63,64 @@ const Enrollments = ({ user }) => {
     return <Badge bg={variants[status] || 'secondary'}>{status.replace('_', ' ')}</Badge>;
   };
 
-  const getTypeBadge = (type) => {
-    const variants = {
-      'MANDATORY': 'danger',
-      'OPTIONAL': 'info',
-      'RECOMMENDED': 'warning'
-    };
-    return <Badge bg={variants[type] || 'secondary'}>{type}</Badge>;
-  };
-
-  const getDifficultyBadge = (difficulty) => {
-    const variants = {
-      'BEGINNER': 'success',
-      'INTERMEDIATE': 'warning',
-      'ADVANCED': 'danger'
-    };
-    return <Badge bg={variants[difficulty] || 'secondary'}>{difficulty}</Badge>;
-  };
-
-  const getPlatformBadge = (materials) => {
-    if (!materials) return <Badge bg="secondary">Internal</Badge>;
-    
-    if (materials.includes('udemy.com')) {
-      return <Badge bg="purple">Udemy</Badge>;
-    } else if (materials.includes('hackerrank.com')) {
-      return <Badge bg="orange">HackerRank</Badge>;
-    } else if (materials.includes('intershala.com')) {
-      return <Badge bg="blue">Internshala</Badge>;
-    } else if (materials.includes('coursera.org')) {
-      return <Badge bg="teal">Coursera</Badge>;
-    } else if (materials.includes('edx.org')) {
-      return <Badge bg="dark">edX</Badge>;
-    } else if (materials.includes('http')) {
-      return <Badge bg="info">External</Badge>;
-    }
-    return <Badge bg="secondary">Internal</Badge>;
-  };
-
-  const formatDate = (date) => {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   const handleContinueLearning = (enrollment) => {
-    if (enrollment.course?.materials && enrollment.course.materials.startsWith('http')) {
+    if (enrollment.course?.materials) {
       window.open(enrollment.course.materials, '_blank');
-    } else {
-      alert(`Course: ${enrollment.course?.title}\nDescription: ${enrollment.course?.description}\nDuration: ${enrollment.course?.durationHours} hours\nCategory: ${enrollment.course?.category}\nType: ${enrollment.course?.type}`);
     }
   };
 
   const handleViewDetails = (enrollment) => {
-    if (enrollment.course?.materials && enrollment.course.materials.startsWith('http')) {
-      window.open(enrollment.course.materials, '_blank');
-    } else {
-      alert(`Course Details:\n\nTitle: ${enrollment.course?.title}\nDescription: ${enrollment.course?.description}\nDuration: ${enrollment.course?.durationHours} hours\nCategory: ${enrollment.course?.category}\nType: ${enrollment.course?.type}\nDifficulty: ${enrollment.course?.difficultyLevel}\nCompletion Rate: ${enrollment.course?.completionRate}%\nRating: ${enrollment.course?.averageRating} ⭐ (${enrollment.course?.reviewCount} reviews)`);
+    console.log('View details for:', enrollment);
+  };
+
+  const handleDeleteEnrollment = async (enrollmentId) => {
+    try {
+      setDeleting(enrollmentId);
+      // API call would go here
+      console.log('Delete enrollment:', enrollmentId);
+    } catch (error) {
+      setError('Failed to delete enrollment');
+    } finally {
+      setDeleting(null);
     }
   };
 
-  if (loading || contextLoading) {
+  if (contextLoading) {
     return (
-      <Container>
-        <Row className="justify-content-center">
-          <Col md={6} className="text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </Col>
-        </Row>
+      <Container className="mt-4">
+        <div className="text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
       </Container>
     );
   }
 
   return (
-    <Container>
+    <Container className="mt-4">
       <Row className="mb-4">
         <Col>
-          <h1 className="fw-bold text-primary">
+          <h2>
             <i className="fas fa-user-graduate me-2"></i>
-            Enrollment History
-          </h1>
-          <p className="text-muted">Track your course enrollments and progress</p>
+            My Course Enrollments
+          </h2>
+          <p className="text-muted">Track your learning progress and manage your course enrollments</p>
         </Col>
       </Row>
 
       {error && (
-        <Alert variant="danger" onClose={() => setError(null)} dismissible>
-          {error}
-        </Alert>
+        <Row className="mb-4">
+          <Col>
+            <Alert variant="danger" dismissible onClose={() => setError(null)}>
+              {error}
+            </Alert>
+          </Col>
+        </Row>
       )}
 
-      <Row>
+      {/* Main Enrollments Section */}
+      <Row className="mb-4">
         <Col>
           <Card className="dashboard-card">
             <Card.Header>
@@ -176,280 +138,23 @@ const Enrollments = ({ user }) => {
                 </div>
               ) : (
                 <div>
-                  {/* Newly Enrolled Courses Section */}
-                  {sortedEnrollments.filter(e => e.status === 'ENROLLED').length > 0 && (
-                    <div className="mb-4">
-                      <h6 className="text-primary mb-3">
-                        <i className="fas fa-star me-2"></i>
-                        Recently Enrolled Courses
-                      </h6>
-                      {sortedEnrollments
-                        .filter(e => e.status === 'ENROLLED')
-                        .map((enrollment) => (
-                          <div key={enrollment.id} className="mb-4 p-4 border rounded shadow-sm" style={{ borderLeft: '4px solid #007bff' }}>
-                            <Row className="align-items-center mb-3">
-                              <Col md={6}>
-                                <h5 className="mb-2">{enrollment.course?.title}</h5>
-                                <p className="text-muted mb-2">{enrollment.course?.description}</p>
-                                <div className="d-flex align-items-center gap-2 mb-2">
-                                  <Badge bg="secondary">{enrollment.course?.category}</Badge>
-                                  <Badge bg="info">{enrollment.course?.type}</Badge>
-                                  <small className="text-muted">
-                                    <i className="fas fa-clock me-1"></i>
-                                    {enrollment.course?.durationHours} hours
-                                  </small>
-                                </div>
-                                <small className="text-muted">
-                                  Enrolled: {formatDate(enrollment.enrolledAt)}
-                                </small>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  {getStatusBadge(enrollment.status)}
-                                  <br />
-                                  <small className="text-muted">Status</small>
-                                </div>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  <div className="h5 mb-1 text-primary">
-                                    {enrollment.completionPercentage?.toFixed(1) || 0}%
-                                  </div>
-                                  <small className="text-muted">Progress</small>
-                                </div>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  <small className="text-muted">No grade yet</small>
-                                  <br />
-                                  <small className="text-muted">Grade</small>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Course Details */}
-                            <Row className="mb-3">
-                              <Col>
-                                <div className="bg-light p-3 rounded">
-                                  <Row>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Difficulty:</strong><br />
-                                        {getDifficultyBadge(enrollment.course?.difficultyLevel)}
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Completion Rate:</strong><br />
-                                        {enrollment.course?.completionRate}%
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Rating:</strong><br />
-                                        ⭐ {enrollment.course?.averageRating} ({enrollment.course?.reviewCount} reviews)
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Platform:</strong><br />
-                                        {getPlatformBadge(enrollment.course?.materials)}
-                                      </small>
-                                    </Col>
-                                  </Row>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Progress Bar */}
-                            <Row className="mb-3">
-                              <Col>
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                  <small className="text-muted">Progress</small>
-                                  <div className="d-flex align-items-center gap-2">
-                                    {getTypeBadge(enrollment.type)}
-                                  </div>
-                                </div>
-                                <div className="progress" style={{ height: '12px' }}>
-                                  <div
-                                    className="progress-bar"
-                                    style={{ width: `${enrollment.completionPercentage || 0}%` }}
-                                  ></div>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Actions */}
-                            <Row>
-                              <Col>
-                                <div className="d-flex gap-2">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline-primary"
-                                    title="Continue Learning"
-                                    onClick={() => handleContinueLearning(enrollment)}
-                                  >
-                                    <i className="fas fa-play me-1"></i>
-                                    Continue
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline-secondary"
-                                    title="View Details"
-                                    onClick={() => handleViewDetails(enrollment)}
-                                  >
-                                    <i className="fas fa-eye me-1"></i>
-                                    Details
-                                  </Button>
-
-                                </div>
-                              </Col>
-                            </Row>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-
-                  {/* In Progress Courses Section */}
-                  {sortedEnrollments.filter(e => e.status === 'IN_PROGRESS').length > 0 && (
+                  {/* In Progress Courses Section with Interactive Progress Scrollbars */}
+                  {sortedEnrollments.filter(e => e.status === 'IN_PROGRESS' || e.status === 'ENROLLED').length > 0 && (
                     <div className="mb-4">
                       <h6 className="text-warning mb-3">
                         <i className="fas fa-spinner me-2"></i>
-                        In Progress Courses
+                        In Progress Courses - Interactive Progress Tracking
                       </h6>
                       {sortedEnrollments
-                        .filter(e => e.status === 'IN_PROGRESS')
+                        .filter(e => e.status === 'IN_PROGRESS' || e.status === 'ENROLLED')
                         .map((enrollment) => (
-                          <div key={enrollment.id} className="mb-4 p-4 border rounded shadow-sm" style={{ borderLeft: '4px solid #ffc107' }}>
-                            <Row className="align-items-center mb-3">
-                              <Col md={6}>
-                                <h5 className="mb-2">{enrollment.course?.title}</h5>
-                                <p className="text-muted mb-2">{enrollment.course?.description}</p>
-                                <div className="d-flex align-items-center gap-2 mb-2">
-                                  <Badge bg="secondary">{enrollment.course?.category}</Badge>
-                                  <Badge bg="info">{enrollment.course?.type}</Badge>
-                                  <small className="text-muted">
-                                    <i className="fas fa-clock me-1"></i>
-                                    {enrollment.course?.durationHours} hours
-                                  </small>
-                                </div>
-                                <small className="text-muted">
-                                  Enrolled: {formatDate(enrollment.enrolledAt)}
-                                </small>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  {getStatusBadge(enrollment.status)}
-                                  <br />
-                                  <small className="text-muted">Status</small>
-                                </div>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  <div className="h5 mb-1 text-primary">
-                                    {enrollment.completionPercentage?.toFixed(1) || 0}%
-                                  </div>
-                                  <small className="text-muted">Progress</small>
-                                </div>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  {enrollment.grade ? (
-                                    <Badge bg="success">{enrollment.grade}</Badge>
-                                  ) : (
-                                    <small className="text-muted">No grade yet</small>
-                                  )}
-                                  <br />
-                                  <small className="text-muted">Grade</small>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Course Details */}
-                            <Row className="mb-3">
-                              <Col>
-                                <div className="bg-light p-3 rounded">
-                                  <Row>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Difficulty:</strong><br />
-                                        {getDifficultyBadge(enrollment.course?.difficultyLevel)}
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Completion Rate:</strong><br />
-                                        {enrollment.course?.completionRate}%
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Rating:</strong><br />
-                                        ⭐ {enrollment.course?.averageRating} ({enrollment.course?.reviewCount} reviews)
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Platform:</strong><br />
-                                        {getPlatformBadge(enrollment.course?.materials)}
-                                      </small>
-                                    </Col>
-                                  </Row>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Progress Bar */}
-                            <Row className="mb-3">
-                              <Col>
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                  <small className="text-muted">Progress</small>
-                                  <div className="d-flex align-items-center gap-2">
-                                    {getTypeBadge(enrollment.type)}
-                                    {enrollment.certificateEarned && (
-                                      <Badge bg="success">
-                                        <i className="fas fa-certificate me-1"></i>
-                                        Certificate
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="progress" style={{ height: '12px' }}>
-                                  <div
-                                    className="progress-bar"
-                                    style={{ width: `${enrollment.completionPercentage || 0}%` }}
-                                  ></div>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Actions */}
-                            <Row>
-                              <Col>
-                                <div className="d-flex gap-2">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline-primary"
-                                    title="Continue Learning"
-                                    onClick={() => handleContinueLearning(enrollment)}
-                                  >
-                                    <i className="fas fa-play me-1"></i>
-                                    Continue
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline-secondary"
-                                    title="View Details"
-                                    onClick={() => handleViewDetails(enrollment)}
-                                  >
-                                    <i className="fas fa-eye me-1"></i>
-                                    Details
-                                  </Button>
-
-                                </div>
-                              </Col>
-                            </Row>
-                          </div>
+                          <ProgressScrollbar
+                            key={enrollment.id}
+                            enrollment={enrollment}
+                            onProgressUpdate={(newProgress) => {
+                              console.log(`Progress updated to ${newProgress}% for course ${enrollment.course.title}`);
+                            }}
+                          />
                         ))}
                     </div>
                   )}
@@ -464,140 +169,24 @@ const Enrollments = ({ user }) => {
                       {sortedEnrollments
                         .filter(e => e.status === 'COMPLETED')
                         .map((enrollment) => (
-                          <div key={enrollment.id} className="mb-4 p-4 border rounded shadow-sm" style={{ borderLeft: '4px solid #28a745' }}>
-                            <Row className="align-items-center mb-3">
-                              <Col md={6}>
-                                <h5 className="mb-2">{enrollment.course?.title}</h5>
-                                <p className="text-muted mb-2">{enrollment.course?.description}</p>
-                                <div className="d-flex align-items-center gap-2 mb-2">
-                                  <Badge bg="secondary">{enrollment.course?.category}</Badge>
-                                  <Badge bg="info">{enrollment.course?.type}</Badge>
-                                  <small className="text-muted">
-                                    <i className="fas fa-clock me-1"></i>
-                                    {enrollment.course?.durationHours} hours
-                                  </small>
-                                </div>
+                          <div key={enrollment.id} className="mb-3 p-3 border rounded" style={{ borderLeft: '4px solid #28a745' }}>
+                            <div className="d-flex justify-content-between align-items-center">
+                              <div>
+                                <h6 className="mb-1">{enrollment.course?.title}</h6>
                                 <small className="text-muted">
-                                  Enrolled: {formatDate(enrollment.enrolledAt)}
-                                  {enrollment.completedAt && (
-                                    <span className="ms-3">
-                                      Completed: {formatDate(enrollment.completedAt)}
-                                    </span>
-                                  )}
+                                  Completed: {formatDate(enrollment.completedAt)} | 
+                                  Duration: {enrollment.course?.durationHours}h | 
+                                  Grade: {enrollment.grade || 'A'}
                                 </small>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  {getStatusBadge(enrollment.status)}
-                                  <br />
-                                  <small className="text-muted">Status</small>
-                                </div>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  <div className="h5 mb-1 text-primary">
-                                    {enrollment.completionPercentage?.toFixed(1) || 0}%
-                                  </div>
-                                  <small className="text-muted">Progress</small>
-                                </div>
-                              </Col>
-                              <Col md={2}>
-                                <div className="text-center">
-                                  {enrollment.grade ? (
-                                    <Badge bg="success">{enrollment.grade}</Badge>
-                                  ) : (
-                                    <small className="text-muted">No grade yet</small>
-                                  )}
-                                  <br />
-                                  <small className="text-muted">Grade</small>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Course Details */}
-                            <Row className="mb-3">
-                              <Col>
-                                <div className="bg-light p-3 rounded">
-                                  <Row>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Difficulty:</strong><br />
-                                        {getDifficultyBadge(enrollment.course?.difficultyLevel)}
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Completion Rate:</strong><br />
-                                        {enrollment.course?.completionRate}%
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Rating:</strong><br />
-                                        ⭐ {enrollment.course?.averageRating} ({enrollment.course?.reviewCount} reviews)
-                                      </small>
-                                    </Col>
-                                    <Col md={3}>
-                                      <small className="text-muted">
-                                        <strong>Platform:</strong><br />
-                                        {getPlatformBadge(enrollment.course?.materials)}
-                                      </small>
-                                    </Col>
-                                  </Row>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Progress Bar */}
-                            <Row className="mb-3">
-                              <Col>
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                  <small className="text-muted">Progress</small>
-                                  <div className="d-flex align-items-center gap-2">
-                                    {getTypeBadge(enrollment.type)}
-                                    {enrollment.certificateEarned && (
-                                      <Badge bg="success">
-                                        <i className="fas fa-certificate me-1"></i>
-                                        Certificate
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="progress" style={{ height: '12px' }}>
-                                  <div
-                                    className="progress-bar"
-                                    style={{ width: `${enrollment.completionPercentage || 0}%` }}
-                                  ></div>
-                                </div>
-                              </Col>
-                            </Row>
-                            
-                            {/* Actions */}
-                            <Row>
-                              <Col>
-                                <div className="d-flex gap-2">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline-primary"
-                                    title="Continue Learning"
-                                    onClick={() => handleContinueLearning(enrollment)}
-                                  >
-                                    <i className="fas fa-play me-1"></i>
-                                    Continue
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline-secondary"
-                                    title="View Details"
-                                    onClick={() => handleViewDetails(enrollment)}
-                                  >
-                                    <i className="fas fa-eye me-1"></i>
-                                    Details
-                                  </Button>
-
-                                </div>
-                              </Col>
-                            </Row>
+                              </div>
+                              <div className="text-end">
+                                <Badge bg="success">100% Complete</Badge>
+                                <br />
+                                <Button size="sm" variant="outline-primary" className="mt-1" onClick={() => handleViewDetails(enrollment)}>
+                                  View Certificate
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         ))}
                     </div>
@@ -646,4 +235,4 @@ const Enrollments = ({ user }) => {
   );
 };
 
-export default Enrollments; 
+export default Enrollments;

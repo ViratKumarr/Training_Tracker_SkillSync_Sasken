@@ -1,80 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, ProgressBar, Badge, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useAppData } from '../context/AppDataContext';
 import apiClient from '../services/apiClient';
 
 const Dashboard = ({ user }) => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
-    totalCourses: 15,
-    enrolledCourses: 4,
-    completedCourses: 2,
-    inProgressCourses: 2,
-    certificates: 2,
-    notifications: 3
-  });
-  const [recentCourses, setRecentCourses] = useState([]);
+  const {
+    courses,
+    getUserEnrollments,
+    getUserProgress,
+    getUserCertificates,
+    getUserNotifications,
+    loading: contextLoading
+  } = useAppData();
+
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  // Get real-time data from context
+  const enrollments = getUserEnrollments(user.id);
+  const progress = getUserProgress(user.id);
+  const certificates = getUserCertificates(user.id);
+  const notifications = getUserNotifications(user.id);
 
-  const fetchDashboardData = async () => {
+  // Calculate real-time stats
+  const stats = {
+    totalCourses: courses.length, // Show total available courses (15)
+    enrolledCourses: enrollments.length, // Real-time enrolled count
+    completedCourses: enrollments.filter(e => e.status === 'COMPLETED').length, // Real-time completed count
+    inProgressCourses: enrollments.filter(e => e.status === 'IN_PROGRESS' || e.status === 'ENROLLED').length, // Real-time in-progress count
+    certificates: certificates.length, // Real-time certificate count
+    notifications: notifications.filter(n => !n.read).length // Real-time unread notification count
+  };
+
+  // Calculate recent courses (last 5 enrolled)
+  const recentCourses = enrollments
+    .sort((a, b) => new Date(b.enrolledAt) - new Date(a.enrolledAt))
+    .slice(0, 5);
+
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      
-      // Fetch all courses
-      const coursesResponse = await apiClient.get('/courses');
-      const courses = coursesResponse.data;
-      
-      // Fetch enrollments for current user
-      const enrollmentsResponse = await apiClient.get(`/enrollments/user/${user.id}`);
-      const enrollments = enrollmentsResponse.data;
-      
-      // Fetch progress for current user
-      const progressResponse = await apiClient.get(`/progress/user/${user.id}`);
-      const progress = progressResponse.data;
-      
-      // Fetch notifications for current user
-      const notificationsResponse = await apiClient.get(`/notifications/user/${user.id}`);
-      const notifications = notificationsResponse.data;
-      
-      // Fetch certificates for current user
-      const certificatesResponse = await apiClient.get(`/certificates/user/${user.id}`);
-      const certificates = certificatesResponse.data;
-      
-      // Calculate stats
-      const completedEnrollments = enrollments.filter(e => e.status === 'COMPLETED').length;
-      const inProgressEnrollments = enrollments.filter(e => e.status === 'IN_PROGRESS').length;
-      
-      setStats({
-        totalCourses: courses.length,
-        enrolledCourses: enrollments.length,
-        completedCourses: completedEnrollments,
-        inProgressCourses: inProgressEnrollments,
-        certificates: certificates.length,
-        notifications: notifications.filter(n => !n.isRead).length
-      });
-      
-      // Set recent courses (last 5 enrolled)
-      setRecentCourses(enrollments.slice(0, 5));
+
+      // Data is now managed by AppDataContext in real-time
+      // No need to fetch separately as it's already available
       
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      // Set default stats if API fails - using the synchronized data
-      setStats({
-        totalCourses: 15,
-        enrolledCourses: 4,
-        completedCourses: 2,
-        inProgressCourses: 2,
-        certificates: 2,
-        notifications: 3
-      });
+      // Stats are calculated in real-time from context, no fallback needed
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.id]);
+
+  useEffect(() => {
+    // Data is now real-time from context, just set loading to false
+    setLoading(contextLoading);
+  }, [contextLoading]);
 
   const getRoleDisplayName = (role) => {
     switch (role) {
@@ -116,6 +98,31 @@ const Dashboard = ({ user }) => {
     }
   };
 
+  const handleStatCardClick = (cardType) => {
+    switch (cardType) {
+      case 'totalCourses':
+        navigate('/courses');
+        break;
+      case 'enrolledCourses':
+        navigate('/enrollments');
+        break;
+      case 'completedCourses':
+        navigate('/enrollments?filter=completed');
+        break;
+      case 'inProgressCourses':
+        navigate('/enrollments?filter=in-progress');
+        break;
+      case 'certificates':
+        navigate('/certificates');
+        break;
+      case 'notifications':
+        navigate('/notifications');
+        break;
+      default:
+        break;
+    }
+  };
+
   if (loading) {
     return (
       <Container>
@@ -145,42 +152,78 @@ const Dashboard = ({ user }) => {
       {/* Statistics Cards */}
       <Row className="mb-4">
         <Col md={4} className="mb-3">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => handleStatCardClick('totalCourses')}
+            style={{ cursor: 'pointer' }}
+            title="Click to view all courses"
+          >
             <h3>{stats.totalCourses}</h3>
             <p className="mb-0">Total Courses</p>
+            <i className="fas fa-external-link-alt card-icon"></i>
           </div>
         </Col>
         <Col md={4} className="mb-3">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => handleStatCardClick('enrolledCourses')}
+            style={{ cursor: 'pointer' }}
+            title="Click to view your enrollments"
+          >
             <h3>{stats.enrolledCourses}</h3>
             <p className="mb-0">Enrolled Courses</p>
+            <i className="fas fa-external-link-alt card-icon"></i>
           </div>
         </Col>
         <Col md={4} className="mb-3">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => handleStatCardClick('completedCourses')}
+            style={{ cursor: 'pointer' }}
+            title="Click to view completed courses"
+          >
             <h3>{stats.completedCourses}</h3>
             <p className="mb-0">Completed Courses</p>
+            <i className="fas fa-external-link-alt card-icon"></i>
           </div>
         </Col>
       </Row>
 
       <Row className="mb-4">
         <Col md={4} className="mb-3">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => handleStatCardClick('inProgressCourses')}
+            style={{ cursor: 'pointer' }}
+            title="Click to view courses in progress"
+          >
             <h3>{stats.inProgressCourses}</h3>
             <p className="mb-0">In Progress</p>
+            <i className="fas fa-external-link-alt card-icon"></i>
           </div>
         </Col>
         <Col md={4} className="mb-3">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => handleStatCardClick('certificates')}
+            style={{ cursor: 'pointer' }}
+            title="Click to view your certificates"
+          >
             <h3>{stats.certificates}</h3>
             <p className="mb-0">Certificates</p>
+            <i className="fas fa-external-link-alt card-icon"></i>
           </div>
         </Col>
         <Col md={4} className="mb-3">
-          <div className="stat-card">
+          <div
+            className="stat-card clickable-card"
+            onClick={() => handleStatCardClick('notifications')}
+            style={{ cursor: 'pointer' }}
+            title="Click to view your notifications"
+          >
             <h3>{stats.notifications}</h3>
             <p className="mb-0">Notifications</p>
+            <i className="fas fa-external-link-alt card-icon"></i>
           </div>
         </Col>
       </Row>

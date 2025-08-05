@@ -1,0 +1,18 @@
+{
+  "name": "training-tracker-api",
+  "version": "1.0.0",
+  "description": "Serverless API for Training Tracker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.1"
+  },
+  "keywords": ["vercel", "serverless", "api"],
+  "author": "Training Tracker Team",
+  "license": "MIT"
+}

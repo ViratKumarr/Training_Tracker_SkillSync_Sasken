@@ -8,15 +8,28 @@
       "config": {
         "distDir": "build"
       }
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
   ],
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/build",
-  "installCommand": "cd frontend && npm install"
+  "installCommand": "cd frontend && npm install && cd ../api && npm install"
 }

@@ -9,7 +9,6 @@ const Dashboard = ({ user }) => {
   const {
     courses,
     getUserEnrollments,
-    getUserProgress,
     getUserCertificates,
     getUserNotifications,
     loading: contextLoading

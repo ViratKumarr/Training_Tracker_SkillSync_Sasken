@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom';
 import { useAppData } from '../context/AppDataContext';
 import ProgressScrollbar from '../components/ProgressScrollbar';
 
-
 const Enrollments = ({ user }) => {
   const { getUserEnrollments, loading: contextLoading } = useAppData();
   const [error, setError] = useState(null);
@@ -51,15 +50,9 @@ const Enrollments = ({ user }) => {
     });
   };
 
-
-
-
-
   const handleViewDetails = (enrollment) => {
     console.log('View details for:', enrollment);
   };
-
-
 
   if (contextLoading) {
     return (
@@ -118,91 +111,131 @@ const Enrollments = ({ user }) => {
                   {sortedEnrollments.filter(e => e.status === 'IN_PROGRESS' || e.status === 'ENROLLED').length > 0 && (
                     <div className="mb-4">
                       <h6 className="text-warning mb-3">
-                        <i className="fas fa-spinner me-2"></i>
-                        In Progress Courses - Interactive Progress Tracking
+                        <i className="fas fa-play-circle me-2"></i>
+                        In Progress ({sortedEnrollments.filter(e => e.status === 'IN_PROGRESS' || e.status === 'ENROLLED').length})
                       </h6>
-                      {sortedEnrollments
-                        .filter(e => e.status === 'IN_PROGRESS' || e.status === 'ENROLLED')
-                        .map((enrollment) => (
-                          <ProgressScrollbar
-                            key={enrollment.id}
-                            enrollment={enrollment}
-                            onProgressUpdate={(newProgress) => {
-                              console.log(`Progress updated to ${newProgress}% for course ${enrollment.course.title}`);
-                            }}
-                          />
-                        ))}
+                      <Row>
+                        {sortedEnrollments
+                          .filter(e => e.status === 'IN_PROGRESS' || e.status === 'ENROLLED')
+                          .map((enrollment) => (
+                            <Col md={6} lg={4} key={enrollment.id} className="mb-3">
+                              <Card className="h-100 border-warning">
+                                <Card.Body>
+                                  <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <Badge bg="warning" text="dark">
+                                      {enrollment.status === 'IN_PROGRESS' ? 'In Progress' : 'Enrolled'}
+                                    </Badge>
+                                    <small className="text-muted">
+                                      {formatDate(enrollment.enrolledAt)}
+                                    </small>
+                                  </div>
+                                  <h6 className="card-title">{enrollment.course.title}</h6>
+                                  <p className="card-text text-muted small">
+                                    {enrollment.course.description?.substring(0, 100)}...
+                                  </p>
+                                  
+                                  {/* Interactive Progress Scrollbar */}
+                                  <ProgressScrollbar 
+                                    enrollment={enrollment}
+                                    user={user}
+                                  />
+                                  
+                                  <div className="mt-3 d-flex gap-2">
+                                    <Button 
+                                      variant="outline-primary" 
+                                      size="sm"
+                                      onClick={() => handleViewDetails(enrollment)}
+                                    >
+                                      View Details
+                                    </Button>
+                                    <Button 
+                                      variant="primary" 
+                                      size="sm"
+                                      onClick={() => {
+                                        if (enrollment.course?.materials) {
+                                          window.open(enrollment.course.materials, '_blank');
+                                        }
+                                      }}
+                                    >
+                                      Go to Course
+                                    </Button>
+                                  </div>
+                                </Card.Body>
+                              </Card>
+                            </Col>
+                          ))}
+                      </Row>
                     </div>
                   )}
 
                   {/* Completed Courses Section */}
                   {sortedEnrollments.filter(e => e.status === 'COMPLETED').length > 0 && (
-                    <div className="mb-4">
+                    <div>
                       <h6 className="text-success mb-3">
                         <i className="fas fa-check-circle me-2"></i>
-                        Completed Courses
+                        Completed ({sortedEnrollments.filter(e => e.status === 'COMPLETED').length})
                       </h6>
-                      {sortedEnrollments
-                        .filter(e => e.status === 'COMPLETED')
-                        .map((enrollment) => (
-                          <div key={enrollment.id} className="mb-3 p-3 border rounded" style={{ borderLeft: '4px solid #28a745' }}>
-                            <div className="d-flex justify-content-between align-items-center">
-                              <div>
-                                <h6 className="mb-1">{enrollment.course?.title}</h6>
-                                <small className="text-muted">
-                                  Completed: {formatDate(enrollment.completedAt)} | 
-                                  Duration: {enrollment.course?.durationHours}h | 
-                                  Grade: {enrollment.grade || 'A'}
-                                </small>
-                              </div>
-                              <div className="text-end">
-                                <Badge bg="success">100% Complete</Badge>
-                                <br />
-                                <Button size="sm" variant="outline-primary" className="mt-1" onClick={() => handleViewDetails(enrollment)}>
-                                  View Certificate
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                      <Row>
+                        {sortedEnrollments
+                          .filter(e => e.status === 'COMPLETED')
+                          .map((enrollment) => (
+                            <Col md={6} lg={4} key={enrollment.id} className="mb-3">
+                              <Card className="h-100 border-success">
+                                <Card.Body>
+                                  <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <Badge bg="success">Completed</Badge>
+                                    <small className="text-muted">
+                                      {enrollment.completedAt ? formatDate(enrollment.completedAt) : 'N/A'}
+                                    </small>
+                                  </div>
+                                  <h6 className="card-title">{enrollment.course.title}</h6>
+                                  <p className="card-text text-muted small">
+                                    {enrollment.course.description?.substring(0, 100)}...
+                                  </p>
+                                  
+                                  {/* Completed Progress Bar */}
+                                  <div className="mb-3">
+                                    <div className="d-flex justify-content-between align-items-center mb-1">
+                                      <small className="text-muted">Progress</small>
+                                      <small className="text-success fw-bold">100%</small>
+                                    </div>
+                                    <div className="progress" style={{ height: '8px' }}>
+                                      <div 
+                                        className="progress-bar bg-success" 
+                                        style={{ width: '100%' }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="mt-3 d-flex gap-2">
+                                    <Button 
+                                      variant="outline-primary" 
+                                      size="sm"
+                                      onClick={() => handleViewDetails(enrollment)}
+                                    >
+                                      View Details
+                                    </Button>
+                                    <Button 
+                                      variant="success" 
+                                      size="sm"
+                                      onClick={() => {
+                                        if (enrollment.course?.materials) {
+                                          window.open(enrollment.course.materials, '_blank');
+                                        }
+                                      }}
+                                    >
+                                      View Course
+                                    </Button>
+                                  </div>
+                                </Card.Body>
+                              </Card>
+                            </Col>
+                          ))}
+                      </Row>
                     </div>
                   )}
                 </div>
               )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Enrollment Statistics */}
-      <Row className="mt-4">
-        <Col>
-          <Card className="dashboard-card">
-            <Card.Header>
-              <h5 className="mb-0">
-                <i className="fas fa-chart-pie me-2"></i>
-                Enrollment Statistics
-              </h5>
-            </Card.Header>
-            <Card.Body>
-              <Row>
-                <Col md={3} className="text-center">
-                  <h4 className="text-primary">{sortedEnrollments.length}</h4>
-                  <p className="text-muted mb-0">Total Enrollments</p>
-                </Col>
-                <Col md={3} className="text-center">
-                  <h4 className="text-success">{sortedEnrollments.filter(e => e.status === 'COMPLETED').length}</h4>
-                  <p className="text-muted mb-0">Completed</p>
-                </Col>
-                <Col md={3} className="text-center">
-                  <h4 className="text-warning">{sortedEnrollments.filter(e => e.status === 'IN_PROGRESS').length}</h4>
-                  <p className="text-muted mb-0">In Progress</p>
-                </Col>
-                <Col md={3} className="text-center">
-                  <h4 className="text-info">{sortedEnrollments.filter(e => e.status === 'ENROLLED').length}</h4>
-                  <p className="text-muted mb-0">Newly Enrolled</p>
-                </Col>
-              </Row>
             </Card.Body>
           </Card>
         </Col>

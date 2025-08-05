@@ -8,10 +8,6 @@
       "config": {
         "distDir": "build"
       }
-    },
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -26,7 +22,8 @@
   ],
   "functions": {
     "api/**/*.js": {
-      "runtime": "nodejs18.x"
+      "memory": 512,
+      "maxDuration": 10
     }
   },
   "buildCommand": "cd frontend && npm run build",

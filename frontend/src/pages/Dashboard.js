@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, ProgressBar, Badge, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAppData } from '../context/AppDataContext';
-import apiClient from '../services/apiClient';
+
 
 const Dashboard = ({ user }) => {
   const navigate = useNavigate();
@@ -19,7 +19,6 @@ const Dashboard = ({ user }) => {
 
   // Get real-time data from context
   const enrollments = getUserEnrollments(user.id);
-  const progress = getUserProgress(user.id);
   const certificates = getUserCertificates(user.id);
   const notifications = getUserNotifications(user.id);
 
@@ -38,20 +37,7 @@ const Dashboard = ({ user }) => {
     .sort((a, b) => new Date(b.enrolledAt) - new Date(a.enrolledAt))
     .slice(0, 5);
 
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      setLoading(true);
 
-      // Data is now managed by AppDataContext in real-time
-      // No need to fetch separately as it's already available
-      
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      // Stats are calculated in real-time from context, no fallback needed
-    } finally {
-      setLoading(false);
-    }
-  }, [user.id]);
 
   useEffect(() => {
     // Data is now real-time from context, just set loading to false

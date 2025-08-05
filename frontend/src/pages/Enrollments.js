@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Alert } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import { useAppData } from '../context/AppDataContext';
 import ProgressScrollbar from '../components/ProgressScrollbar';
-import apiClient from '../services/apiClient';
+
 
 const Enrollments = ({ user }) => {
   const { getUserEnrollments, loading: contextLoading } = useAppData();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [deleting, setDeleting] = useState(null);
   const location = useLocation();
 
   // Get user-specific enrollments from context
@@ -53,37 +51,15 @@ const Enrollments = ({ user }) => {
     });
   };
 
-  const getStatusBadge = (status) => {
-    const variants = {
-      'ENROLLED': 'primary',
-      'IN_PROGRESS': 'warning',
-      'COMPLETED': 'success',
-      'DROPPED': 'danger'
-    };
-    return <Badge bg={variants[status] || 'secondary'}>{status.replace('_', ' ')}</Badge>;
-  };
 
-  const handleContinueLearning = (enrollment) => {
-    if (enrollment.course?.materials) {
-      window.open(enrollment.course.materials, '_blank');
-    }
-  };
+
+
 
   const handleViewDetails = (enrollment) => {
     console.log('View details for:', enrollment);
   };
 
-  const handleDeleteEnrollment = async (enrollmentId) => {
-    try {
-      setDeleting(enrollmentId);
-      // API call would go here
-      console.log('Delete enrollment:', enrollmentId);
-    } catch (error) {
-      setError('Failed to delete enrollment');
-    } finally {
-      setDeleting(null);
-    }
-  };
+
 
   if (contextLoading) {
     return (

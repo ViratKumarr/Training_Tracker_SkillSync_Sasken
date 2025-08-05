@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import apiClient from '../services/apiClient';
 
 const AppDataContext = createContext();
@@ -24,9 +24,9 @@ export const AppDataProvider = ({ children }) => {
   // Initialize data
   useEffect(() => {
     initializeData();
-  }, []);
+  }, [initializeData]);
 
-  const initializeData = async () => {
+  const initializeData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -97,7 +97,7 @@ export const AppDataProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Load courses from API
   const loadCourses = async () => {

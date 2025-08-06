@@ -33,7 +33,7 @@ const Notifications = ({ user }) => {
   };
 
   const markAllAsRead = () => {
-    markAllNotificationsAsRead();
+    markAllNotificationsAsRead(user.id);
   };
 
   const handleDeleteNotification = (notificationId) => {
@@ -78,7 +78,7 @@ const Notifications = ({ user }) => {
     return <Badge bg={variants[type] || 'secondary'}>{type.replace('_', ' ')}</Badge>;
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   if (loading || contextLoading) {
     return (
@@ -147,9 +147,9 @@ const Notifications = ({ user }) => {
               ) : (
                 <div>
                   {notifications.map((notification) => (
-                    <div 
-                      key={notification.id} 
-                      className={`mb-3 p-3 border rounded ${!notification.isRead ? 'bg-light' : ''}`}
+                    <div
+                      key={notification.id}
+                      className={`mb-3 p-3 border rounded ${!notification.read ? 'bg-light' : ''}`}
                     >
                       <Row className="align-items-start">
                         <Col md={1} className="text-center">
@@ -170,7 +170,7 @@ const Notifications = ({ user }) => {
                         </Col>
                         <Col md={3} className="text-end">
                           <div className="d-flex flex-column gap-1">
-                            {!notification.isRead && (
+                            {!notification.read && (
                               <Button 
                                 size="sm" 
                                 variant="outline-success"

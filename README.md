@@ -1,5 +1,5 @@
 <p align="left">
-  © Virat Kumar 2025 | Built with ❤️ using MERN Stack + Socket.IO
+  © Virat Kumar 2025 | Built with ❤️ using Java & Springboot by Virat 
 </p>
 
 <div align="center">
@@ -104,5 +104,5 @@ Virat Kumarr
 💼 LinkedIn : https://www.linkedin.com/in/virat-kumar-b0b57024a
 
 <p align="center">
- Made with ❤️ using React, Node.js & Socket.IO by Virat Kumar
+Built with ❤️ using Java & Springboot by Virat 
 </p>

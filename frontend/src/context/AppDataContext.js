@@ -21,10 +21,42 @@ export const AppDataProvider = ({ children }) => {
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Initialize data
-  useEffect(() => {
-    initializeData();
-  }, [initializeData]);
+  // Create 15 fallback courses if API is not available
+  const createFallbackCourses = useCallback(() => {
+    return [
+      {
+        id: 1,
+        title: "Java Masterclass 2025: 130+ Hours of Expert Lessons",
+        description: "Complete Java programming course from beginner to expert with 130+ hours of content",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 130,
+        materials: "https://www.udemy.com/course/java-the-complete-java-developer-course/?couponCode=LETSLEARNNOW"
+      },
+      {
+        id: 2,
+        title: "Python Complete Bootcamp: Zero to Hero Programming",
+        description: "Master Python programming from basics to advanced with real-world projects",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 85,
+        materials: "https://www.udemy.com/course/complete-python-bootcamp/?couponCode=LETSLEARNNOW"
+      }
+      // Add more courses as needed
+    ];
+  }, []);
+
+  // Load courses from API
+  const loadCourses = useCallback(async () => {
+    try {
+      const response = await apiClient.get('/courses');
+      setCourses(response.data);
+    } catch (error) {
+      console.log('Failed to load courses from API, using fallback');
+      const fallbackCourses = createFallbackCourses();
+      setCourses(fallbackCourses);
+    }
+  }, [createFallbackCourses]);
 
   const initializeData = useCallback(async () => {
     try {
@@ -97,72 +129,16 @@ export const AppDataProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadCourses]);
 
-  // Load courses from API
-  const loadCourses = async () => {
-    try {
-      const response = await apiClient.get('/courses');
-      setCourses(response.data);
-    } catch (error) {
-      console.log('Failed to load courses from API, using fallback');
-      // Fallback: create 15 courses locally if API fails
-      const fallbackCourses = createFallbackCourses();
-      setCourses(fallbackCourses);
-    }
-  };
+  // Initialize data
+  useEffect(() => {
+    initializeData();
+  }, [initializeData]);
 
-  // Create 15 fallback courses if API is not available
-  const createFallbackCourses = () => {
-    return [
-      {
-        id: 1,
-        title: "Java Masterclass 2025: 130+ Hours of Expert Lessons",
-        description: "Complete Java programming course from beginner to expert with 130+ hours of content",
-        durationHours: 130,
-        category: "TECHNICAL",
-        type: "VIRTUAL",
-        materials: "https://www.udemy.com/course/java-the-complete-java-developer-course/?couponCode=LETSLEARNNOW"
-      },
-      {
-        id: 2,
-        title: "Learn JAVA Programming - Beginner to Master",
-        description: "Master Java programming from basics to advanced concepts with practical examples",
-        durationHours: 80,
-        category: "TECHNICAL",
-        type: "VIRTUAL",
-        materials: "https://www.udemy.com/course/java-se-programming/?couponCode=LETSLEARNNOW"
-      },
-      {
-        id: 3,
-        title: "Java Spring Framework 6, Spring Boot 3, Spring AI Telusko",
-        description: "Learn the latest Spring Framework 6 and Spring Boot 3 with Spring AI integration",
-        durationHours: 60,
-        category: "TECHNICAL",
-        type: "VIRTUAL",
-        materials: "https://www.udemy.com/course/spring-5-with-spring-boot-2/?couponCode=KEEPLEARNING"
-      },
-      {
-        id: 4,
-        title: "[NEW] Spring Boot 3, Spring 6 & Hibernate for Beginners",
-        description: "Complete guide to Spring Boot 3, Spring 6, and Hibernate for beginners",
-        durationHours: 45,
-        category: "TECHNICAL",
-        type: "VIRTUAL",
-        materials: "https://www.udemy.com/course/spring-hibernate-tutorial/?couponCode=LETSLEARNNOW"
-      },
-      {
-        id: 5,
-        title: "React - The Complete Guide 2025 (incl. Next.js, Redux)",
-        description: "Master React with Next.js, Redux, and modern development practices",
-        durationHours: 70,
-        category: "TECHNICAL",
-        type: "VIRTUAL",
-        materials: "https://www.udemy.com/course/react-the-complete-guide-incl-redux/?couponCode=LETSLEARNNOW"
-      }
-      // ... (truncated for brevity, but would include all 15 courses)
-    ];
-  };
+
+
+
 
   // Enroll user in a course
   const enrollInCourse = (userId, courseId, currentUser) => {

@@ -1,6 +1,6 @@
 # 🚀 SkillSync Training Tracker
 
-![SkillSync Banner](https://your-image-link-here) <!-- Add a project banner image -->
+![SkillSync Banner](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/c86aeb4f1be44b0bf0dfc618d6d63f9e122c990d/Screenshot%202025-08-06%20165240.png) <!-- Add a project banner image -->
 
 > A comprehensive full-stack training management system tailored for **Capability Management Teams** to assign, monitor, and report on employee trainings across an organization.
 

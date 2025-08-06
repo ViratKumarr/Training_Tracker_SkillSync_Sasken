@@ -1,5 +1,5 @@
 <p align="left">
-  © Virat Kumar 2025 | Built with ❤️ using Java & Springboot by Virat 
+  © Virat Kumar 2025 | Built with ❤️ using Java, Springboot , Maven , JWT & Node.js by Virat 
 </p>
 
 <div align="center">
@@ -17,7 +17,7 @@
 ## 📌 Purpose
 
 To **streamline** and **centralize** employee training processes, enabling stakeholders to:
-- Assign and track employee training progress
+- Assign and track Admin / Manager / Trainer / Employee training progress
 - Monitor course completion and performance
 - Generate reports and certifications
 - Gather structured feedback for improvements

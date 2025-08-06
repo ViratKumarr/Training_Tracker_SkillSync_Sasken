@@ -9,12 +9,16 @@
   </p>
 </div>
 
-
-![SkillSync Banner](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/c86aeb4f1be44b0bf0dfc618d6d63f9e122c990d/Screenshot%202025-08-06%20165240.png)
-
-
+![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/c86aeb4f1be44b0bf0dfc618d6d63f9e122c990d/Screenshot%202025-08-06%20165240.png)
 
 ---
+## 📌 Purpose
+
+To **streamline** and **centralize** employee training processes, enabling stakeholders to:
+- Assign and track employee training progress
+- Monitor course completion and performance
+- Generate reports and certifications
+- Gather structured feedback for improvements
 ![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/09e89a032627dadf4b69bd369940e1a18b27874b/Screenshot%202025-08-06%20165303.png)
 
 ## 🌟 Live Demo & Source Code
@@ -26,17 +30,6 @@
 ---
 ![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/09e89a032627dadf4b69bd369940e1a18b27874b/Screenshot%202025-08-06%20165321.png)
 
-## 📌 Purpose
-
-To **streamline** and **centralize** employee training processes, enabling stakeholders to:
-- Assign and track employee training progress
-- Monitor course completion and performance
-- Generate reports and certifications
-- Gather structured feedback for improvements
-
----
-![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/09e89a032627dadf4b69bd369940e1a18b27874b/Screenshot%202025-08-06%20165401.png)
-
 ## ✨ Key Features
 
 ✅ **Role-Based User Management**  
@@ -47,8 +40,10 @@ To **streamline** and **centralize** employee training processes, enabling stake
 ✅ **Feedback Collection (Forms/Surveys)**  
 ✅ **Smart Notifications & Reminders**  
 
-> ![Dashboard Screenshot](https://your-dashboard-image-link-here)
-> *[Add a screenshot of the dashboard or key module]*
+---
+![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/09e89a032627dadf4b69bd369940e1a18b27874b/Screenshot%202025-08-06%20165401.png)
+
+
 
 ---
 ![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/09e89a032627dadf4b69bd369940e1a18b27874b/Screenshot%202025-08-06%20165424.png)

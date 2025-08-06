@@ -18,9 +18,9 @@
 
 To **streamline** and **centralize** employee training processes by enabling Admins, Managers, Trainers, and Employees to:
 - Assign, track, and participate in training programs based on their roles
--Monitor course progress and performance metrics
--Generate detailed reports and certifications
--Collect structured feedback to enhance learning outcomes
+- Monitor course progress and performance metrics
+- Generate detailed reports and certifications
+- Collect structured feedback to enhance learning outcomes
 
 ![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/09e89a032627dadf4b69bd369940e1a18b27874b/Screenshot%202025-08-06%20165303.png)
 

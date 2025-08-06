@@ -35,14 +35,130 @@ export const AppDataProvider = ({ children }) => {
       },
       {
         id: 2,
-        title: "Python Complete Bootcamp: Zero to Hero Programming",
-        description: "Master Python programming from basics to advanced with real-world projects",
+        title: "Learn JAVA Programming - Beginner to Master",
+        description: "Master Java programming from basics to advanced concepts with hands-on projects",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 95,
+        materials: "https://www.udemy.com/course/java-se-programming/?couponCode=LETSLEARNNOW"
+      },
+      {
+        id: 3,
+        title: "Java Spring Framework 6, Spring Boot 3, Spring AI Telusko",
+        description: "Learn Spring Framework 6, Spring Boot 3, and Spring AI with practical examples",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 75,
+        materials: "https://www.udemy.com/course/spring-5-with-spring-boot-2/?couponCode=KEEPLEARNING"
+      },
+      {
+        id: 4,
+        title: "[NEW] Spring Boot 3, Spring 6 & Hibernate for Beginners",
+        description: "Complete guide to Spring Boot 3, Spring 6, and Hibernate for beginners",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 80,
+        materials: "https://www.udemy.com/course/spring-hibernate-tutorial/?couponCode=LETSLEARNNOW"
+      },
+      {
+        id: 5,
+        title: "React - The Complete Guide 2025 (incl. Next.js, Redux)",
+        description: "Master React, Next.js, Redux and build modern web applications",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 90,
+        materials: "https://www.udemy.com/course/react-the-complete-guide-incl-redux/?couponCode=LETSLEARNNOW"
+      },
+      {
+        id: 6,
+        title: "The Ultimate React Course 2025: React, Next.js, Redux & More",
+        description: "Complete React course covering React, Next.js, Redux and modern development",
         category: "TECHNICAL",
         type: "SELF_PACED",
         durationHours: 85,
-        materials: "https://www.udemy.com/course/complete-python-bootcamp/?couponCode=LETSLEARNNOW"
+        materials: "https://www.udemy.com/course/the-ultimate-react-course/?couponCode=LETSLEARNNOW"
+      },
+      {
+        id: 7,
+        title: "The Complete Full-Stack Web Development Bootcamp",
+        description: "Complete full-stack web development bootcamp covering frontend and backend",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 120,
+        materials: "https://www.udemy.com/course/the-complete-web-development-bootcamp/?couponCode=KEEPLEARNING"
+      },
+      {
+        id: 8,
+        title: "The Ultimate MySQL Bootcamp: Go from SQL Beginner to Expert",
+        description: "Master MySQL and SQL from beginner to expert level with practical projects",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 65,
+        materials: "https://www.udemy.com/course/the-ultimate-mysql-bootcamp-go-from-sql-beginner-to-expert/?couponCode=KEEPLEARNING"
+      },
+      {
+        id: 9,
+        title: "SQL - MySQL for Data Analytics and Business Intelligence",
+        description: "Learn SQL and MySQL for data analytics and business intelligence applications",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 55,
+        materials: "https://www.udemy.com/course/sql-mysql-for-data-analytics-and-business-intelligence/?couponCode=KEEPLEARNING"
+      },
+      {
+        id: 10,
+        title: "100 Days of Code: The Complete Python Pro Bootcamp",
+        description: "Complete Python programming bootcamp with 100 days of coding challenges",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 100,
+        materials: "https://www.udemy.com/course/100-days-of-code/?couponCode=LETSLEARNNOW"
+      },
+      {
+        id: 11,
+        title: "[NEW] Ultimate AWS Certified Cloud Practitioner CLF-C02 2025",
+        description: "Complete AWS Cloud Practitioner certification course for 2025",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 45,
+        materials: "https://www.udemy.com/course/aws-certified-cloud-practitioner-new/?couponCode=KEEPLEARNING"
+      },
+      {
+        id: 12,
+        title: "Build Responsive Real-World Websites with HTML and CSS",
+        description: "Learn to build responsive, real-world websites using HTML5 and CSS3",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 40,
+        materials: "https://www.udemy.com/course/design-and-develop-a-killer-website-with-html5-and-css3/?couponCode=LETSLEARNNOW"
+      },
+      {
+        id: 13,
+        title: "C Programming For Beginners - Master the C Language",
+        description: "Complete C programming course for beginners to master the C language",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 50,
+        materials: "https://www.udemy.com/course/c-programming-for-beginners-/?couponCode=KEEPLEARNING"
+      },
+      {
+        id: 14,
+        title: "Python Data Structures & Algorithms + LEETCODE Exercises",
+        description: "Master Python data structures and algorithms with LeetCode practice exercises",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 70,
+        materials: "https://www.udemy.com/course/data-structures-algorithms-python/?couponCode=KEEPLEARNING"
+      },
+      {
+        id: 15,
+        title: "The Complete Web Development Bootcamp",
+        description: "Complete web development bootcamp covering all aspects of modern web development",
+        category: "TECHNICAL",
+        type: "SELF_PACED",
+        durationHours: 110,
+        materials: "https://www.udemy.com/course/the-complete-web-development-bootcamp/?couponCode=LETSLEARNNOW"
       }
-      // Add more courses as needed
     ];
   }, []);
 

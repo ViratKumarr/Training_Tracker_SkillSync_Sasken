@@ -5,6 +5,7 @@
 > A comprehensive full-stack training management system tailored for **Capability Management Teams** to assign, monitor, and report on employee trainings across an organization.
 
 ---
+![image alt](https://github.com/ViratKumarr/Scribble_Whiteboard_Multiplayer_App/blob/9cd29de0f322ccf6fa60f852165d579fa7547b9e/Screenshot%202025-07-30%20122234.png)
 
 ## 🌟 Live Demo & Source Code
 
@@ -13,6 +14,7 @@
 - 👨‍💼 **Connect on LinkedIn**: [Virat Kumar](https://www.linkedin.com/in/virat-kumar-b0b57024a)
 
 ---
+![image alt](https://github.com/ViratKumarr/Scribble_Whiteboard_Multiplayer_App/blob/9cd29de0f322ccf6fa60f852165d579fa7547b9e/Screenshot%202025-07-30%20122234.png)
 
 ## 📌 Purpose
 
@@ -23,6 +25,7 @@ To **streamline** and **centralize** employee training processes, enabling stake
 - Gather structured feedback for improvements
 
 ---
+![image alt](https://github.com/ViratKumarr/Scribble_Whiteboard_Multiplayer_App/blob/9cd29de0f322ccf6fa60f852165d579fa7547b9e/Screenshot%202025-07-30%20122234.png)
 
 ## ✨ Key Features
 
@@ -38,6 +41,7 @@ To **streamline** and **centralize** employee training processes, enabling stake
 > *[Add a screenshot of the dashboard or key module]*
 
 ---
+![image alt](https://github.com/ViratKumarr/Scribble_Whiteboard_Multiplayer_App/blob/9cd29de0f322ccf6fa60f852165d579fa7547b9e/Screenshot%202025-07-30%20122234.png)
 
 ## 🛠️ Tech Stack
 
@@ -54,6 +58,7 @@ To **streamline** and **centralize** employee training processes, enabling stake
 - Spring Data JPA
 - H2 Database (development)
 - MySQL (production)
+![image alt](https://github.com/ViratKumarr/Scribble_Whiteboard_Multiplayer_App/blob/9cd29de0f322ccf6fa60f852165d579fa7547b9e/Screenshot%202025-07-30%20122234.png)
 
 ### 🖥️ Frontend
 
@@ -67,6 +72,7 @@ To **streamline** and **centralize** employee training processes, enabling stake
 - Axios for API calls
 
 ---
+![image alt](https://github.com/ViratKumarr/Scribble_Whiteboard_Multiplayer_App/blob/9cd29de0f322ccf6fa60f852165d579fa7547b9e/Screenshot%202025-07-30%20122234.png)
 
 ## 🏁 Getting Started
 

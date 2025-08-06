@@ -94,10 +94,7 @@ Ensure the following are installed:
 ![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/09e89a032627dadf4b69bd369940e1a18b27874b/Screenshot%202025-08-06%20165709.png)
 ### 🚀 Running the App
 
-1. **Clone the repository**  
-```bash
-git clone https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken.git
-```
+
 ![image alt](https://github.com/ViratKumarr/Training_Tracker_SkillSync_Sasken/blob/09e89a032627dadf4b69bd369940e1a18b27874b/Screenshot%202025-08-06%20165720.png)
 
 ## 🧑‍💻 Creator

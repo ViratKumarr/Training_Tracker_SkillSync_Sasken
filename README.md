@@ -1,4 +1,6 @@
-
+<p align="left">
+  © Virat Kumar 2025 | Built with ❤️ using Java, SpringBoot, JWT, H2 & MySQL by Virat 
+</p>
 
 <div align="center">
   <h2>🚀 SkillSync Training Tracker</h2>
